@@ -4,4 +4,4 @@ from .models import Business
 class BusinessSerializer (serializers.ModelSerializer):
     class Meta:
         model=Business 
-        fields='_all__'
+        fields='__all__'
