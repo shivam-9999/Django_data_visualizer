@@ -15,8 +15,6 @@ interface BusinessData {
   average_revenue?: number;
   company_count_per_country?: number;
   highest_revenue_per_country?: number;
-  max_profit?: number;
-  total_employees?: number;
   total_revenue_by_country: number;
 }
 
@@ -37,7 +35,7 @@ const BusinessDashboard: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get<BusinessData[] | BusinessData>(
-        `http://127.0.0.1:8000/api/business/queries/?query_type=${queryType}`
+        `http://127.0.0.1:8000/api/business/queries/${queryType}/`
       );
       setQueryData(response.data);
 
@@ -56,13 +54,13 @@ const BusinessDashboard: React.FC = () => {
 
           case "large_employers":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.total_employees || 0);
+            dataValues = response.data.map((item) => item.employees || 0);
             labelName = "Employee Count of Large Employers";
             break;
 
           case "sorted_by_revenue":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.total_revenue || 0);
+            dataValues = response.data.map((item) => item.revenue || 0);
             labelName = "Businesses Sorted by Revenue";
             break;
 
@@ -110,7 +108,7 @@ const BusinessDashboard: React.FC = () => {
 
           case "top_5_profitable":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.max_profit || 0);
+            dataValues = response.data.map((item) => item.profit || 0);
             labelName = "Top 5 Profitable Companies";
             break;
 
