@@ -3,6 +3,7 @@ import axios from "axios";
 import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import FilterBar from "./FilterBar";
+import AddBusinessRecords from "./AddBusinessRecords";
 
 interface BusinessData {
   id?: number;
@@ -19,6 +20,8 @@ interface BusinessData {
   total_revenue_by_country?: number;
 }
 
+
+
 interface ChartDataType {
   labels: string[];
   datasets: { label: string; data: number[]; backgroundColor: string; }[];
@@ -33,13 +36,8 @@ const BusinessDashboard: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [queryType, setQueryType] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState<boolean>(false); // Toggle Add Record Form
-  const [newBusiness, setNewBusiness] = useState<BusinessData>({
-    name: "",
-    revenue: "",
-    profit: "",
-    employees: "",
-    country: "",
-  });
+
+
   //  Chart Options
   const chartOptions = {
     responsive: true,
@@ -236,53 +234,6 @@ const BusinessDashboard: React.FC = () => {
 
 
 
-  /** Function to Handle Adding New Business */
-  const handleAddBusiness = async () => {
-    if (!newBusiness.name) {
-      alert("Please provide Business name.");
-      return;
-    }
-    else if (!newBusiness.revenue) {
-      alert("Please provide revenue");
-      return;
-    }
-    else if (!newBusiness.profit) {
-      alert("please provide profit ")
-      return;
-    }
-    else if (!newBusiness.employees) {
-      alert("Please provide employees");
-      return;
-    } else if (!newBusiness.country) {
-      alert("Please provide country");
-      return;
-    }
-
-
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/business/addrecord/",
-        newBusiness
-      );
-
-      if (response.status === 201) {
-        alert("Business added successfully!");
-        fetchQueryData("all_businesses"); // Refresh data
-        setShowAddForm(false); // Hide form after adding
-        setNewBusiness({
-          name: "",
-          revenue: 0,
-          profit: 0,
-          employees: 0,
-          country: "",
-        });
-      }
-    } catch (error) {
-      console.error("Error adding business:", error);
-      alert("Failed to add business.");
-    }
-  };
-
 
 
   return (
@@ -298,55 +249,8 @@ const BusinessDashboard: React.FC = () => {
         {showAddForm ? "Cancel" : "Add Record"}
       </button>
 
-      {/* Show Add Form Only When Button is Clicked */}
-      {showAddForm && (
-        <div className="bg-white  shadow p-4 rounded-md mb-4 mt-2">
-          <h3 className="text-xl font-semibold mb-2">Add New Business</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Business Name"
-              value={newBusiness.name}
-              onChange={(e) => setNewBusiness({ ...newBusiness, name: e.target.value })}
-              className="border p-2 rounded"
-            />
-            <input
-              type="number"
-              placeholder="Revenue"
-              value={newBusiness.revenue || ""}
-              onChange={(e) => setNewBusiness({ ...newBusiness, revenue: Number(e.target.value) })}
-              className="border p-2 rounded"
-            />
-            <input
-              type="number"
-              placeholder="Profit"
-              value={newBusiness.profit || ""}
-              onChange={(e) => setNewBusiness({ ...newBusiness, profit: Number(e.target.value) })}
-              className="border p-2 rounded"
-            />
-            <input
-              type="number"
-              placeholder="Employees"
-              value={newBusiness.employees || ""}
-              onChange={(e) => setNewBusiness({ ...newBusiness, employees: Number(e.target.value) })}
-              className="border p-2 rounded"
-            />
-            <input
-              type="text"
-              placeholder="Country"
-              value={newBusiness.country}
-              onChange={(e) => setNewBusiness({ ...newBusiness, country: e.target.value })}
-              className="border p-2 rounded"
-            />
-          </div>
-          <button
-            onClick={handleAddBusiness}
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Submit
-          </button>
-        </div>
-      )}
+      {/* Show AddBusinessForm Only When Button is Clicked */}
+      {showAddForm && <AddBusinessRecords fetchQueryData={fetchQueryData} setShowAddForm={setShowAddForm} />}
 
       {loading && <p className="text-gray-500 mb-2">Loading...</p>}
 
@@ -390,10 +294,6 @@ const BusinessDashboard: React.FC = () => {
           </table>
         </div>
       )}
-
-      {/* const res = queryData.map(obj => obj);
-      console.log(res[0].employees); */}
-
 
       {chartData && (
         <div className="bg-white shadow p-4 min-h-fit min-w-fit rounded-md mt-4">
