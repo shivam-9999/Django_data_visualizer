@@ -1,12 +1,19 @@
 
 import BusinessDashboard from "./components/BusinessDashboard";
 
+import FileUpload from "./components/FileUpload";
+
+// import Form from "./components/Form";
+
 function App() {
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
+    <div className="container mx-auto p-6">
+      <FileUpload />
+      {/* <Form /> */}
       <BusinessDashboard />
     </div>
   );
 }
 
 export default App;
+

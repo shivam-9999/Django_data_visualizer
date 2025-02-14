@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Bar } from "react-chartjs-2";
+import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import FilterBar from "./FilterBar";
 
@@ -13,14 +13,16 @@ interface BusinessData {
   country?: string;
   total_revenue?: number;
   average_revenue?: number;
+  total_employees?: number;
   company_count_per_country?: number;
   highest_revenue_per_country?: number;
-  total_revenue_by_country: number;
+  total_revenue_by_country?: number;
 }
 
 interface ChartDataType {
   labels: string[];
-  datasets: { label: string; data: number[]; backgroundColor: string }[];
+  datasets: { label: string; data: number[]; backgroundColor: string; }[];
+
 }
 
 const BusinessDashboard: React.FC = () => {
@@ -29,6 +31,32 @@ const BusinessDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [sortColumn, setSortColumn] = useState<keyof BusinessData | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [queryType, setQueryType] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState<boolean>(false); // Toggle Add Record Form
+  const [newBusiness, setNewBusiness] = useState<BusinessData>({
+    name: "",
+    revenue: 0,
+    profit: 0,
+    employees: 0,
+    country: "",
+  });
+  //  Chart Options
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false, // Allows custom width/height
+  };
+
+  useEffect(() => {
+    if (Array.isArray(queryData)) {
+      const res = queryData.map(obj => obj);
+      console.log(res[0].employees);
+
+
+    } else if (queryData) {
+      console.log([queryData]); // Convert single object to array
+    }
+  }, [queryData])
+
 
 
   const fetchQueryData = async (queryType: string) => {
@@ -37,12 +65,23 @@ const BusinessDashboard: React.FC = () => {
       const response = await axios.get<BusinessData[] | BusinessData>(
         `http://127.0.0.1:8000/api/business/queries/${queryType}/`
       );
-      setQueryData(response.data);
 
+      setQueryData(response.data);
+      console.log(queryType);
+      setQueryType(queryType)
+
+
+
+      // Generate chart data
       if (Array.isArray(response.data) && response.data.length > 0) {
         let labels: string[] = [];
         let dataValues: number[] = [];
         let labelName: string = "";
+
+        labels = response.data.map((item) => item.name || "Unknown");
+        dataValues = response.data.map((item) => item.revenue || 0);
+        labelName = "Revenue of All Businesses";
+
 
         // Determine chart data structure based on query type
         switch (queryType) {
@@ -54,8 +93,10 @@ const BusinessDashboard: React.FC = () => {
 
           case "large_employers":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.employees || 0);
+            dataValues = response.data.map((item) => item.total_employees || 0);
+            console.log(dataValues)
             labelName = "Employee Count of Large Employers";
+
             break;
 
           case "sorted_by_revenue":
@@ -136,7 +177,6 @@ const BusinessDashboard: React.FC = () => {
             labelName = queryType.replace(/_/g, " ").toUpperCase();
         }
 
-        // Set chart data
         setChartData({
           labels,
           datasets: [
@@ -157,7 +197,6 @@ const BusinessDashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchQueryData("all_businesses");
@@ -195,60 +234,156 @@ const BusinessDashboard: React.FC = () => {
     return "↕";
   };
 
-  return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-4">Business Data Dashboard</h2>
 
+
+  /** Function to Handle Adding New Business */
+  const handleAddBusiness = async () => {
+    if (!newBusiness.name || !newBusiness.country || !newBusiness.revenue || !newBusiness.profit) {
+      alert("Please provide at least a name and country for the business.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/business/addrecord/",
+        newBusiness
+      );
+
+      if (response.status === 201) {
+        alert("Business added successfully!");
+        fetchQueryData("all_businesses"); // Refresh data
+        setShowAddForm(false); // Hide form after adding
+        setNewBusiness({
+          name: "",
+          revenue: 0,
+          profit: 0,
+          employees: 0,
+          country: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding business:", error);
+      alert("Failed to add business.");
+    }
+  };
+
+
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Business Data Dashboard</h2>
       <FilterBar onFilterSelect={fetchQueryData} />
+
+      {/* Toggle Add Form Button */}
+      <button
+        onClick={() => setShowAddForm(!showAddForm)}
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {showAddForm ? "Cancel" : "Add Record"}
+      </button>
+
+      {/* Show Add Form Only When Button is Clicked */}
+      {showAddForm && (
+        <div className="bg-white  shadow p-4 rounded-md mb-4 mt-2">
+          <h3 className="text-xl font-semibold mb-2">Add New Business</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Business Name"
+              value={newBusiness.name}
+              onChange={(e) => setNewBusiness({ ...newBusiness, name: e.target.value })}
+              className="border p-2 rounded"
+            />
+            <input
+              type="number"
+              placeholder="Revenue"
+              value={newBusiness.revenue}
+              onChange={(e) => setNewBusiness({ ...newBusiness, revenue: Number(e.target.value) })}
+              className="border p-2 rounded"
+            />
+            <input
+              type="number"
+              placeholder="Profit"
+              value={newBusiness.profit}
+              onChange={(e) => setNewBusiness({ ...newBusiness, profit: Number(e.target.value) })}
+              className="border p-2 rounded"
+            />
+            <input
+              type="number"
+              placeholder="Employees"
+              value={newBusiness.employees}
+              onChange={(e) => setNewBusiness({ ...newBusiness, employees: Number(e.target.value) })}
+              className="border p-2 rounded"
+            />
+            <input
+              type="text"
+              placeholder="Country"
+              value={newBusiness.country}
+              onChange={(e) => setNewBusiness({ ...newBusiness, country: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+          <button
+            onClick={handleAddBusiness}
+            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Submit
+          </button>
+        </div>
+      )}
 
       {loading && <p className="text-gray-500 mb-2">Loading...</p>}
 
+
       {queryData && (
-        <div className="bg-white shadow p-4 rounded-md">
-          <div className="max-h-screen overflow-y-scroll "> {/* Enables scrolling */}
-            <table className="min-w-full border border-gray-200 text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  {Object.keys(Array.isArray(queryData) ? queryData[0] : queryData).map((key) => (
-                    <th
-                      key={key}
-                      className="border px-2 py-1 text-left cursor-pointer"
-                      onClick={() => handleSort(key as keyof BusinessData)}
-                    >
-                      {key.toUpperCase()} {getSortIndicator(key as keyof BusinessData)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(queryData) ? (
-                  queryData.map((row, idx) => (
-                    <tr key={idx} className="border">
-                      {Object.values(row).map((val, i) => (
-                        <td key={i} className="border px-2 py-1">
-                          {typeof val === "number" ? val.toLocaleString() : (val as string)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    {Object.values(queryData).map((val, i) => (
-                      <td key={i} className="border px-2 py-1">
+        <div className="bg-white max-h-screen overflow-scroll shadow p-4 rounded-md">
+          <table className="min-w-full border border-gray-200 text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                {Object.keys(Array.isArray(queryData) ? queryData[0] : queryData).map((key) => (
+                  <th key={key}
+                    className="border px-2 py-1 text-left"
+                    onClick={() => handleSort(key as keyof BusinessData)}
+                  >
+                    {key.toUpperCase()} {getSortIndicator(key as keyof BusinessData)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(queryData) ? (
+                queryData.map((row, idx) => (
+                  <tr key={idx} className="border">
+                    {Object.values(row).map((val, i) => (
+                      <td key={i} className="border px-2  py-1">
                         {typeof val === "number" ? val.toLocaleString() : (val as string)}
                       </td>
                     ))}
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  {Object.values(queryData).map((val, i) => (
+                    <td key={i} className="border px-2 py-1">
+                      {typeof val === "number" ? val.toLocaleString() : (val as string)}
+                    </td>
+                  ))}
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
+      {/* const res = queryData.map(obj => obj);
+      console.log(res[0].employees); */}
+
+
       {chartData && (
-        <div className="bg-white shadow p-4 rounded-md mt-4">
-          <Bar data={chartData} />
+        <div className="bg-white shadow p-4 min-h-fit min-w-fit rounded-md mt-4">
+          {
+            queryType == "large_employers" ? <Pie data={chartData} options={chartOptions} /> : <Bar data={chartData} />
+          }
         </div>
       )}
     </div>
