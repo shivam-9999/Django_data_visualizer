@@ -7,9 +7,9 @@ import FilterBar from "./FilterBar";
 interface BusinessData {
   id?: number;
   name?: string;
-  revenue?: number;
-  profit?: number;
-  employees?: number;
+  revenue?: string | number;
+  profit?: string | number;
+  employees?: string | number;
   country?: string;
   total_revenue?: number;
   average_revenue?: number;
@@ -35,9 +35,9 @@ const BusinessDashboard: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState<boolean>(false); // Toggle Add Record Form
   const [newBusiness, setNewBusiness] = useState<BusinessData>({
     name: "",
-    revenue: 0,
-    profit: 0,
-    employees: 0,
+    revenue: "",
+    profit: "",
+    employees: "",
     country: "",
   });
   //  Chart Options
@@ -79,7 +79,7 @@ const BusinessDashboard: React.FC = () => {
         let labelName: string = "";
 
         labels = response.data.map((item) => item.name || "Unknown");
-        dataValues = response.data.map((item) => item.revenue || 0);
+        dataValues = response.data.map((item) => Number(item.revenue) || 0);
         labelName = "Revenue of All Businesses";
 
 
@@ -87,13 +87,13 @@ const BusinessDashboard: React.FC = () => {
         switch (queryType) {
           case "all_businesses":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.revenue || 0);
+            dataValues = response.data.map((item) => Number(item.revenue) || 0);
             labelName = "Revenue of All Businesses";
             break;
 
           case "large_employers":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.total_employees || 0);
+            dataValues = response.data.map((item) => Number(item.total_employees) || 0);
             console.log(dataValues)
             labelName = "Employee Count of Large Employers";
 
@@ -101,13 +101,13 @@ const BusinessDashboard: React.FC = () => {
 
           case "sorted_by_revenue":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.revenue || 0);
+            dataValues = response.data.map((item) => Number(item.revenue) || 0);
             labelName = "Businesses Sorted by Revenue";
             break;
 
           case "sorted_by_profit":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.profit || 0);
+            dataValues = response.data.map((item) => Number(item.profit) || 0);
             labelName = "Businesses Sorted by Profit";
             break;
 
@@ -125,7 +125,7 @@ const BusinessDashboard: React.FC = () => {
 
           case "average_profit":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.profit || 0);
+            dataValues = response.data.map((item) => Number(item.profit) || 0);
             labelName = "Average Profit per Business";
             break;
 
@@ -149,31 +149,31 @@ const BusinessDashboard: React.FC = () => {
 
           case "top_5_profitable":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.profit || 0);
+            dataValues = response.data.map((item) => Number(item.profit) || 0);
             labelName = "Top 5 Profitable Companies";
             break;
 
           case "usa_companies":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.revenue || 0);
+            dataValues = response.data.map((item) => Number(item.revenue) || 0);
             labelName = "USA Companies by Revenue";
             break;
 
           case "low_profit":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.profit || 0);
+            dataValues = response.data.map((item) => Number(item.profit) || 0);
             labelName = "Low Profit Companies";
             break;
 
           case "high_revenue":
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.revenue || 0);
+            dataValues = response.data.map((item) => Number(item.revenue) || 0);
             labelName = "High Revenue Businesses";
             break;
 
           default:
             labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.revenue || 0);
+            dataValues = response.data.map((item) => Number(item.revenue) || 0);
             labelName = queryType.replace(/_/g, " ").toUpperCase();
         }
 
@@ -238,10 +238,26 @@ const BusinessDashboard: React.FC = () => {
 
   /** Function to Handle Adding New Business */
   const handleAddBusiness = async () => {
-    if (!newBusiness.name || !newBusiness.country || !newBusiness.revenue || !newBusiness.profit) {
-      alert("Please provide at least a name and country for the business.");
+    if (!newBusiness.name) {
+      alert("Please provide Business name.");
       return;
     }
+    else if (!newBusiness.revenue) {
+      alert("Please provide revenue");
+      return;
+    }
+    else if (!newBusiness.profit) {
+      alert("please provide profit ")
+      return;
+    }
+    else if (!newBusiness.employees) {
+      alert("Please provide employees");
+      return;
+    } else if (!newBusiness.country) {
+      alert("Please provide country");
+      return;
+    }
+
 
     try {
       const response = await axios.post(
@@ -297,21 +313,21 @@ const BusinessDashboard: React.FC = () => {
             <input
               type="number"
               placeholder="Revenue"
-              value={newBusiness.revenue}
+              value={newBusiness.revenue || ""}
               onChange={(e) => setNewBusiness({ ...newBusiness, revenue: Number(e.target.value) })}
               className="border p-2 rounded"
             />
             <input
               type="number"
               placeholder="Profit"
-              value={newBusiness.profit}
+              value={newBusiness.profit || ""}
               onChange={(e) => setNewBusiness({ ...newBusiness, profit: Number(e.target.value) })}
               className="border p-2 rounded"
             />
             <input
               type="number"
               placeholder="Employees"
-              value={newBusiness.employees}
+              value={newBusiness.employees || ""}
               onChange={(e) => setNewBusiness({ ...newBusiness, employees: Number(e.target.value) })}
               className="border p-2 rounded"
             />
