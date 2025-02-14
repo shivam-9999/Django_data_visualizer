@@ -9,6 +9,18 @@ from .serializers import BusinessSerializer
 from django.db.models import Sum, Avg, Count, Max
 import pandas as pd
 import numpy as np
+from collections import OrderedDict
+
+
+
+# Add Business Entry API (POST)
+class AddBusinessView(APIView):
+    def post(self, request):
+        serializer = BusinessSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # UploadBusinessExcel
@@ -47,7 +59,7 @@ class BusinessStatictics (APIView):
 # business Queries 
 class AllBusinessesView(APIView):
     def get(self, request):
-        data = Business.objects.all().values()
+        data = Business.objects.all().order_by("-revenue").values()
         return Response(data)
 
 
@@ -56,8 +68,8 @@ class HighestRevenueCountryView(APIView):
         try:
             data = (
                 Business.objects.values("country")
-                .annotate(total_revenue=Sum("revenue"))
-                .order_by("-total_revenue")
+                .annotate(total_revenue_by_country=Sum("revenue"))
+                .order_by("-total_revenue_by_country")
             ).first()
 
             if not data:
@@ -98,7 +110,6 @@ class HighestRevenueCompanyView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        
 
 class SortedByRevenueView(APIView):
     def get(self, request):
@@ -160,7 +171,21 @@ class CompanyCountPerCountryView(APIView):
 class Top5ProfitableView(APIView):
     def get(self, request):
         try:
-            data = list(Business.objects.order_by("-profit")[:5].values())
+            # Fetch all records ordered by profit
+            records = Business.objects.order_by("-profit").values("name", "profit")
+
+            # Ensure only unique companies
+            unique_companies = []
+            seen_companies = set()
+
+            for record in records:
+                company = record["name"]
+                if company not in seen_companies:
+                    seen_companies.add(company)
+                    unique_companies.append(record)
+                if len(unique_companies) == 5:  # Stop when we have 5 unique companies
+                    break
+            data = list(unique_companies)
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -201,7 +226,7 @@ class LowProfitView(APIView):
     def get(self, request):
         try:
             threshold = 100000  # Adjust as needed
-            data = list(Business.objects.filter(profit__lt=threshold).values())
+            data = list(Business.objects.filter(profit__lt=threshold).order_by("profit").values())
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -211,8 +236,22 @@ class LargeEmployersView(APIView):
     def get(self, request):
         try:
             threshold = 50  # Adjust as needed
-            data = list(Business.objects.filter(employees__gt=threshold).values())
+            
+            # Aggregate employees per company
+            queryset = (
+                Business.objects.filter(employees__gt=threshold)
+                .values("name", "country")  # Group by company name and country
+                .annotate(total_employees=Sum("employees"))  # Sum employees
+                .order_by("-total_employees")  # Sort by highest employees
+            )
+            
+            data = list(queryset)
+
+            if not data:
+                return Response({"error": "No data found"}, status=status.HTTP_404_NOT_FOUND)
+
             return Response(data)
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -220,7 +259,7 @@ class LargeEmployersView(APIView):
 class USACompaniesView(APIView):
     def get(self, request):
         try:
-            data = list(Business.objects.filter(country__iexact="USA").values())
+            data = list(Business.objects.filter(country__iexact="USA").order_by('-revenue').values())
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
