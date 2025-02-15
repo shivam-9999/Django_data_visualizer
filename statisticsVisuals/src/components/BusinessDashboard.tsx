@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import FilterBar from "./FilterBar";
 import AddBusinessRecords from "./AddBusinessRecords";
+import BusinessChart from "./BusinessChart"; // Import the new component
+
 
 interface BusinessData {
   id?: number;
@@ -22,15 +23,8 @@ interface BusinessData {
 
 
 
-interface ChartDataType {
-  labels: string[];
-  datasets: { label: string; data: number[]; backgroundColor: string; }[];
-
-}
-
 const BusinessDashboard: React.FC = () => {
   const [queryData, setQueryData] = useState<BusinessData[] | BusinessData | null>(null);
-  const [chartData, setChartData] = useState<ChartDataType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [sortColumn, setSortColumn] = useState<keyof BusinessData | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -38,11 +32,6 @@ const BusinessDashboard: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState<boolean>(false); // Toggle Add Record Form
 
 
-  //  Chart Options
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false, // Allows custom width/height
-  };
 
   useEffect(() => {
     if (Array.isArray(queryData)) {
@@ -65,129 +54,10 @@ const BusinessDashboard: React.FC = () => {
       );
 
       setQueryData(response.data);
-      console.log(queryType);
       setQueryType(queryType)
 
 
 
-      // Generate chart data
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        let labels: string[] = [];
-        let dataValues: number[] = [];
-        let labelName: string = "";
-
-        labels = response.data.map((item) => item.name || "Unknown");
-        dataValues = response.data.map((item) => Number(item.revenue) || 0);
-        labelName = "Revenue of All Businesses";
-
-
-        // Determine chart data structure based on query type
-        switch (queryType) {
-          case "all_businesses":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.revenue) || 0);
-            labelName = "Revenue of All Businesses";
-            break;
-
-          case "large_employers":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.total_employees) || 0);
-            console.log(dataValues)
-            labelName = "Employee Count of Large Employers";
-
-            break;
-
-          case "sorted_by_revenue":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.revenue) || 0);
-            labelName = "Businesses Sorted by Revenue";
-            break;
-
-          case "sorted_by_profit":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.profit) || 0);
-            labelName = "Businesses Sorted by Profit";
-            break;
-
-          case "total_revenue":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => item.total_revenue || 0);
-            labelName = "Total Revenue";
-            break;
-
-          case "total_revenue_per_country":
-            labels = response.data.map((item) => item.country || "Unknown");
-            dataValues = response.data.map((item) => item.total_revenue_by_country || 0);
-            labelName = "High Revenue Businesses";
-            break;
-
-          case "average_profit":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.profit) || 0);
-            labelName = "Average Profit per Business";
-            break;
-
-          case "average_revenue_per_country":
-            labels = response.data.map((item) => item.country || "Unknown");
-            dataValues = response.data.map((item) => item.average_revenue || 0);
-            labelName = "Average Revenue per Country";
-            break;
-
-          case "company_count_per_country":
-            labels = response.data.map((item) => item.country || "Unknown");
-            dataValues = response.data.map((item) => item.company_count_per_country || 0);
-            labelName = "Company Count per Country";
-            break;
-
-          case "highest_revenue_country":
-            labels = response.data.map((item) => item.country || "Unknown");
-            dataValues = response.data.map((item) => item.highest_revenue_per_country || 0);
-            labelName = "Highest Revenue Countries";
-            break;
-
-          case "top_5_profitable":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.profit) || 0);
-            labelName = "Top 5 Profitable Companies";
-            break;
-
-          case "usa_companies":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.revenue) || 0);
-            labelName = "USA Companies by Revenue";
-            break;
-
-          case "low_profit":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.profit) || 0);
-            labelName = "Low Profit Companies";
-            break;
-
-          case "high_revenue":
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.revenue) || 0);
-            labelName = "High Revenue Businesses";
-            break;
-
-          default:
-            labels = response.data.map((item) => item.name || "Unknown");
-            dataValues = response.data.map((item) => Number(item.revenue) || 0);
-            labelName = queryType.replace(/_/g, " ").toUpperCase();
-        }
-
-        setChartData({
-          labels,
-          datasets: [
-            {
-              label: labelName,
-              data: dataValues,
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-          ],
-        });
-      } else {
-        setChartData(null);
-      }
     } catch (error) {
       console.error("Error fetching data:", error);
       alert("Failed to fetch data.");
@@ -295,13 +165,11 @@ const BusinessDashboard: React.FC = () => {
         </div>
       )}
 
-      {chartData && (
-        <div className="bg-white shadow p-4 min-h-fit min-w-fit rounded-md mt-4">
-          {
-            queryType == "large_employers" ? <Pie data={chartData} options={chartOptions} /> : <Bar data={chartData} />
-          }
-        </div>
-      )}
+      {/* Render the BusinessChart Component */}
+      <BusinessChart
+        queryData={Array.isArray(queryData) ? queryData : null}
+        queryType={queryType}
+      />
     </div>
   );
 };
