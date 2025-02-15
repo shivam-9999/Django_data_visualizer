@@ -194,7 +194,7 @@ class Top5ProfitableView(APIView):
 class SortedByProfitView(APIView):
     def get(self, request):
         try:
-            data = list(Business.objects.order_by("-profit").values())
+            data = list(Business.objects.order_by("-profit").values("name","profit"))
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -212,9 +212,9 @@ class AverageProfitView(APIView):
 class LowestProfitCompanyView(APIView):
     def get(self, request):
         try:
-            business = Business.objects.order_by("profit").first()
+            business = Business.objects.values("id","name","profit").order_by("profit").first()
             if business:
-                data = BusinessSerializer(business).data
+                data = business
             else:
                 data = {"message": "No business records found"}
             return Response(data)
@@ -226,7 +226,7 @@ class LowProfitView(APIView):
     def get(self, request):
         try:
             threshold = 100000  # Adjust as needed
-            data = list(Business.objects.filter(profit__lt=threshold).order_by("profit").values("ID","name","revenue"))
+            data = list(Business.objects.filter(profit__lt=threshold).order_by("profit").values("id","name","profit"))
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -259,7 +259,7 @@ class LargeEmployersView(APIView):
 class USACompaniesView(APIView):
     def get(self, request):
         try:
-            data = list(Business.objects.filter(country__iexact="USA").order_by('-revenue').values())
+            data = list(Business.objects.values("name","country", "revenue").filter(country__iexact="USA").order_by('-revenue'))
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -269,7 +269,7 @@ class HighRevenueView(APIView):
     def get(self, request):
         try:
             threshold = 500000  # Adjust as needed
-            data = list(Business.objects.filter(revenue__gt=threshold).order_by('-revenue').values())
+            data = list(Business.objects.filter(revenue__gt=threshold).values("name","country", "revenue").order_by('-revenue'))
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
