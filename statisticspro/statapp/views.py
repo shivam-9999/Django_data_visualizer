@@ -114,7 +114,7 @@ class HighestRevenueCompanyView(APIView):
 class SortedByRevenueView(APIView):
     def get(self, request):
         try:
-            data = list(Business.objects.order_by("-revenue").values())
+            data = list(Business.objects.order_by("-revenue").values("name","revenue"))
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -226,7 +226,7 @@ class LowProfitView(APIView):
     def get(self, request):
         try:
             threshold = 100000  # Adjust as needed
-            data = list(Business.objects.filter(profit__lt=threshold).order_by("profit").values())
+            data = list(Business.objects.filter(profit__lt=threshold).order_by("profit").values("ID","name","revenue"))
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
