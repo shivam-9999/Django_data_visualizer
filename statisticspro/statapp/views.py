@@ -1,4 +1,4 @@
-from django.db import DatabaseError
+from django.db import DatabaseError, transaction
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework. response import Response
@@ -22,6 +22,19 @@ class AddBusinessView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+# Add the Delete View to views.py
+class DeleteAllBusinessesView(APIView):
+    def delete(self, request):
+        try:
+            with transaction.atomic():  # Ensure atomic deletion
+                deleted_count, _ = Business.objects.all().delete()
+                return Response(
+                    {"message": f"Deleted {deleted_count} business records"},
+                    status=status.HTTP_200_OK
+                )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # UploadBusinessExcel
 class UploadBusinessExcel(APIView):

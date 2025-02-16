@@ -3,14 +3,19 @@ from statapp.views import (UploadBusinessExcel, BusinessStatictics, AllBusinesse
     SortedByRevenueView, TotalRevenueView, TotalRevenuePerCountryView,
     AverageRevenuePerCountryView, CompanyCountPerCountryView, Top5ProfitableView,
     SortedByProfitView, AverageProfitView, LowestProfitCompanyView, LowProfitView,
-    LargeEmployersView, USACompaniesView, HighRevenueView, AddBusinessView
+    LargeEmployersView, USACompaniesView, HighRevenueView, AddBusinessView, DeleteAllBusinessesView
 )
 
 
 
 urlpatterns = [
+    
+    # to do : add, edit, delete
     path('upload/', UploadBusinessExcel.as_view(), name= 'upload_business_excel' ),
     path('addrecord/', AddBusinessView.as_view(), name= 'add_record_business_excel'),
+    path('delete-all-businesses/', DeleteAllBusinessesView.as_view(), name='all_businesses'),
+    
+    # queries
     path('business/stats/', BusinessStatictics.as_view(), name = 'business_stats'),
     path('queries/all_businesses/', AllBusinessesView.as_view(), name='all_businesses'),
     
