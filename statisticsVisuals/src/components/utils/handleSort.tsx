@@ -8,7 +8,7 @@ export const handleSort = (
     sortOrder: "asc" | "desc",
     setSortColumn: (column: keyof BusinessData) => void,
     setSortOrder: (order: "asc" | "desc") => void,
-    queryData: BusinessData[] | null | undefined,
+    queryData: BusinessData[] | BusinessData | null,
     setQueryData: (data: BusinessData[]) => void) => {
 
     if (!Array.isArray(queryData)) {

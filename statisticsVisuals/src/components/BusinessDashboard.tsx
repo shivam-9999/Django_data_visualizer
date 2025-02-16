@@ -41,30 +41,6 @@ const BusinessDashboard: React.FC = () => {
     fetchQueryData("all_businesses");
   }, []);
 
-  /** SORTING LOGIC **/
-  // const handleSort = (column: keyof BusinessData) => {
-  //   const order = sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-  //   setSortColumn(column);
-  //   setSortOrder(order);
-
-  //   if (Array.isArray(queryData)) {
-  //     const sortedData = [...queryData].sort((a, b) => {
-  //       const valueA = a[column] ?? "";
-  //       const valueB = b[column] ?? "";
-
-  //       if (typeof valueA === "number" && typeof valueB === "number") {
-  //         return order === "asc" ? valueA - valueB : valueB - valueA;
-  //       }
-
-  //       return order === "asc"
-  //         ? String(valueA).localeCompare(String(valueB))
-  //         : String(valueB).localeCompare(String(valueA));
-  //     });
-
-  //     setQueryData(sortedData);
-  //   }
-  // };
-
   /** FUNCTION TO DISPLAY SORT ICONS **/
   const getSortIndicator = (column: keyof BusinessData) => {
     if (sortColumn === column) {
@@ -141,8 +117,9 @@ const BusinessDashboard: React.FC = () => {
       )}
 
       {/* Render the BusinessChart Component */}
+
       <BusinessChart
-        queryData={Array.isArray(queryData) ? queryData : null}
+        queryData={Array.isArray(queryData) && queryData.length > 1 ? queryData : null}
         queryType={queryType}
       />
     </div>

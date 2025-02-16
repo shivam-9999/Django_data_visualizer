@@ -49,97 +49,99 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
         let dataValues: number[] = [];
         let labelName: string = "";
 
+        const top20Data = queryData.slice(0, 20);
+
         // Determine chart data structure based on query type
         switch (queryType) {
             case "all_businesses":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.revenue) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.revenue) || 0);
                 labelName = "Revenue of All Businesses";
                 break;
 
             case "large_employers":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.total_employees) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.total_employees) || 0);
                 console.log(dataValues)
                 labelName = "Employee Count of Large Employers";
 
                 break;
 
             case "sorted_by_revenue":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.revenue) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.revenue) || 0);
                 labelName = "Businesses Sorted by Revenue";
                 break;
 
             case "sorted_by_profit":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.profit) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.profit) || 0);
                 labelName = "Businesses Sorted by Profit";
                 break;
 
             case "total_revenue":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => item.total_revenue || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => item.total_revenue || 0);
                 labelName = "Total Revenue";
                 break;
 
             case "total_revenue_per_country":
-                labels = queryData.map((item) => item.country || "Unknown");
-                dataValues = queryData.map((item) => item.total_revenue_by_country || 0);
+                labels = top20Data.map((item) => item.country || "Unknown");
+                dataValues = top20Data.map((item) => item.total_revenue_by_country || 0);
                 labelName = "High Revenue Businesses";
                 break;
 
             case "average_profit":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.profit) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.profit) || 0);
                 labelName = "Average Profit per Business";
                 break;
 
             case "average_revenue_per_country":
-                labels = queryData.map((item) => item.country || "Unknown");
-                dataValues = queryData.map((item) => item.average_revenue || 0);
+                labels = top20Data.map((item) => item.country || "Unknown");
+                dataValues = top20Data.map((item) => item.average_revenue || 0);
                 labelName = "Average Revenue per Country";
                 break;
 
             case "company_count_per_country":
-                labels = queryData.map((item) => item.country || "Unknown");
-                dataValues = queryData.map((item) => item.company_count_per_country || 0);
+                labels = top20Data.map((item) => item.country || "Unknown");
+                dataValues = top20Data.map((item) => item.company_count_per_country || 0);
                 labelName = "Company Count per Country";
                 break;
 
             case "highest_revenue_country":
-                labels = queryData.map((item) => item.country || "Unknown");
-                dataValues = queryData.map((item) => item.highest_revenue_per_country || 0);
+                labels = top20Data.map((item) => item.country || "Unknown");
+                dataValues = top20Data.map((item) => item.highest_revenue_per_country || 0);
                 labelName = "Highest Revenue Countries";
                 break;
 
             case "top_5_profitable":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.profit) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.profit) || 0);
                 labelName = "Top 5 Profitable Companies";
                 break;
 
             case "usa_companies":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.revenue) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.revenue) || 0);
                 labelName = "USA Companies by Revenue";
                 break;
 
             case "low_profit":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.profit) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.profit) || 0);
                 labelName = "Low Profit Companies";
                 break;
 
             case "high_revenue":
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.revenue) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.revenue) || 0);
                 labelName = "High Revenue Businesses";
                 break;
 
             default:
-                labels = queryData.map((item) => item.name || "Unknown");
-                dataValues = queryData.map((item) => Number(item.revenue) || 0);
+                labels = top20Data.map((item) => item.name || "Unknown");
+                dataValues = top20Data.map((item) => Number(item.revenue) || 0);
                 labelName = "revenue of all businesses";
         }
 
