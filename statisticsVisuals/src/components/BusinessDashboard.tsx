@@ -4,23 +4,8 @@ import "chart.js/auto";
 import FilterBar from "./FilterBar";
 import AddBusinessRecords from "./AddBusinessRecords";
 import BusinessChart from "./BusinessChart"; // Import the new component
-
-
-interface BusinessData {
-  id?: number;
-  name?: string;
-  revenue?: string | number;
-  profit?: string | number;
-  employees?: string | number;
-  country?: string;
-  total_revenue?: number;
-  average_revenue?: number;
-  total_employees?: number;
-  company_count_per_country?: number;
-  highest_revenue_per_country?: number;
-  total_revenue_by_country?: number;
-}
-
+import { BusinessData } from "./types/BusinessData"
+import { handleSort } from "./utils/handleSort";
 
 
 const BusinessDashboard: React.FC = () => {
@@ -30,20 +15,6 @@ const BusinessDashboard: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [queryType, setQueryType] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState<boolean>(false); // Toggle Add Record Form
-
-
-
-  useEffect(() => {
-    if (Array.isArray(queryData)) {
-      const res = queryData.map(obj => obj);
-      console.log(res[0].employees);
-
-
-    } else if (queryData) {
-      console.log([queryData]); // Convert single object to array
-    }
-  }, [queryData])
-
 
 
   const fetchQueryData = async (queryType: string) => {
@@ -71,28 +42,28 @@ const BusinessDashboard: React.FC = () => {
   }, []);
 
   /** SORTING LOGIC **/
-  const handleSort = (column: keyof BusinessData) => {
-    const order = sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-    setSortColumn(column);
-    setSortOrder(order);
+  // const handleSort = (column: keyof BusinessData) => {
+  //   const order = sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+  //   setSortColumn(column);
+  //   setSortOrder(order);
 
-    if (Array.isArray(queryData)) {
-      const sortedData = [...queryData].sort((a, b) => {
-        const valueA = a[column] ?? "";
-        const valueB = b[column] ?? "";
+  //   if (Array.isArray(queryData)) {
+  //     const sortedData = [...queryData].sort((a, b) => {
+  //       const valueA = a[column] ?? "";
+  //       const valueB = b[column] ?? "";
 
-        if (typeof valueA === "number" && typeof valueB === "number") {
-          return order === "asc" ? valueA - valueB : valueB - valueA;
-        }
+  //       if (typeof valueA === "number" && typeof valueB === "number") {
+  //         return order === "asc" ? valueA - valueB : valueB - valueA;
+  //       }
 
-        return order === "asc"
-          ? String(valueA).localeCompare(String(valueB))
-          : String(valueB).localeCompare(String(valueA));
-      });
+  //       return order === "asc"
+  //         ? String(valueA).localeCompare(String(valueB))
+  //         : String(valueB).localeCompare(String(valueA));
+  //     });
 
-      setQueryData(sortedData);
-    }
-  };
+  //     setQueryData(sortedData);
+  //   }
+  // };
 
   /** FUNCTION TO DISPLAY SORT ICONS **/
   const getSortIndicator = (column: keyof BusinessData) => {
@@ -101,9 +72,6 @@ const BusinessDashboard: React.FC = () => {
     }
     return "↕";
   };
-
-
-
 
 
   return (
@@ -125,7 +93,7 @@ const BusinessDashboard: React.FC = () => {
       {loading && <p className="text-gray-500 mb-2">Loading...</p>}
 
 
-      {queryData && (
+      {queryData && (Array.isArray(queryData) ? queryData.length > 0 : queryData !== null) && (
         <div className="bg-white max-h-screen overflow-scroll shadow p-4 rounded-md">
           <table className="min-w-full border border-gray-200 text-sm">
             <thead>
@@ -133,7 +101,14 @@ const BusinessDashboard: React.FC = () => {
                 {Object.keys(Array.isArray(queryData) ? queryData[0] : queryData).map((key) => (
                   <th key={key}
                     className="border px-2 py-1 text-left"
-                    onClick={() => handleSort(key as keyof BusinessData)}
+                    onClick={() => handleSort(
+                      key as keyof BusinessData,
+                      sortColumn,
+                      sortOrder,
+                      setSortColumn,
+                      setSortOrder,
+                      Array.isArray(queryData) ? queryData : [queryData], // Ensuring it's always an array
+                      setQueryData)}
                   >
                     {key.toUpperCase()} {getSortIndicator(key as keyof BusinessData)}
                   </th>
