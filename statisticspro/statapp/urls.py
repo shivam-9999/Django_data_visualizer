@@ -3,7 +3,7 @@ from statapp.views import (DeleteBusinessView, UploadBusinessExcel, BusinessStat
     SortedByRevenueView, TotalRevenueView, TotalRevenuePerCountryView,
     AverageRevenuePerCountryView, CompanyCountPerCountryView, Top5ProfitableView,
     SortedByProfitView, AverageProfitView, LowestProfitCompanyView, LowProfitView,
-    LargeEmployersView, USACompaniesView, HighRevenueView, AddBusinessView, DeleteAllBusinessesView
+    LargeEmployersView, USACompaniesView, HighRevenueView, AddBusinessView, DeleteAllBusinessesView, EditBusinessRecord
 )
 
 
@@ -12,6 +12,7 @@ urlpatterns = [
     
     # to do : add, edit, delete
     path('upload/', UploadBusinessExcel.as_view(), name= 'upload_business_excel' ),
+    path('editRecord/<int:id>/', EditBusinessRecord.as_view(), name= 'Edit_business_excel' ),
     path('addrecord/', AddBusinessView.as_view(), name= 'add_record_business_excel'),
     path('delete-all-businesses/', DeleteAllBusinessesView.as_view(), name='all_businesses'),
     path('delete_record_by_Id/', DeleteBusinessView.as_view(), name='delete_record_by_Id'),

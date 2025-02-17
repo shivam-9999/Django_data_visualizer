@@ -37,6 +37,34 @@ class DeleteAllBusinessesView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         
+# edit the view of Views.py
+class EditBusinessRecord(APIView):
+    def put(self, request, id):
+        try:
+            business = Business.objects.get(pk=id)
+        except Business.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BusinessSerializer(business, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, id):
+        try:
+            business = Business.objects.get(pk=id)
+        except Business.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BusinessSerializer(business, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        
+        
 # deleting individual record : 
 
 class DeleteBusinessView(APIView):
