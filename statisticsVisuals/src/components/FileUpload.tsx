@@ -51,7 +51,7 @@ const FileUpload: React.FC = () => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-
+            window.location.reload();
             console.log("Upload Success:", response.data);
             alert("File uploaded successfully!");
         } catch (error) {

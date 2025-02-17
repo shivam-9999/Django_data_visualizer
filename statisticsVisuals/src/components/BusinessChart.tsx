@@ -38,7 +38,6 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
     };
 
 
-
     useEffect(() => {
         if (!queryData || !Array.isArray(queryData) || queryData.length === 0) {
             setChartData(null);
@@ -62,9 +61,7 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
             case "large_employers":
                 labels = top20Data.map((item) => item.name || "Unknown");
                 dataValues = top20Data.map((item) => Number(item.total_employees) || 0);
-                console.log(dataValues)
                 labelName = "Employee Count of Large Employers";
-
                 break;
 
             case "sorted_by_revenue":
