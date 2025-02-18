@@ -9,9 +9,32 @@ from .serializers import BusinessSerializer
 from django.db.models import Sum, Avg, Count, Max, Min
 import pandas as pd
 import numpy as np
+import time
+from django.conf import settings
 from collections import OrderedDict
 
 
+#  Server Up Time
+class ServerUpTime(APIView):
+    def get(self,request):
+        # Calculate uptime
+        current_time = time.time()
+        uptime_seconds = int(current_time - settings.SERVER_START_TIME)
+        
+        # Calculate days, hours, minutes, and seconds
+        days, remainder = divmod(uptime_seconds, 86400)  # 86400 seconds in a day
+        hours, remainder = divmod(remainder, 3600)       # 3600 seconds in an hour
+        minutes, seconds = divmod(remainder, 60)         # 60 seconds in a minute
+
+        # Prepare the uptime dictionary
+        uptime = {
+            'days': days,
+            'hours': hours,
+            'minutes': minutes,
+            'seconds': seconds,
+        }
+
+        return Response({'uptime': uptime})
 
 # Add Business Entry API (POST)
 class AddBusinessView(APIView):

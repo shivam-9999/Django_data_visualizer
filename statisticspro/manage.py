@@ -2,6 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import time
+
+# Record the server start time
+SERVER_START_TIME = time.time()
 
 
 def main():

@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import time
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+SERVER_START_TIME = time.time()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -25,7 +26,8 @@ SECRET_KEY = "django-insecure-^6!!l8o4j(92)2c+vy-@e8s4pl1@v)@g%zz*akqv82@uq50iio
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0']
+# Server start time
 
 
 # Application definition
@@ -44,7 +46,6 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Frontend URL
-    "http://localhost:5174"
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Enable this if using authentication cookies or tokens

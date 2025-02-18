@@ -1,5 +1,5 @@
 from django.urls import path
-from statapp.views import (DeleteBusinessView, UploadBusinessExcel, BusinessStatictics, AllBusinessesView, HighestRevenueCompanyView, HighestRevenueCountryView,
+from statapp.views import (ServerUpTime, DeleteBusinessView, UploadBusinessExcel, BusinessStatictics, AllBusinessesView, HighestRevenueCompanyView, HighestRevenueCountryView,
     SortedByRevenueView, TotalRevenueView, TotalRevenuePerCountryView,
     AverageRevenuePerCountryView, CompanyCountPerCountryView, Top5ProfitableView,
     SortedByProfitView, AverageProfitView, LowestProfitCompanyView, LowProfitView,
@@ -11,6 +11,7 @@ from statapp.views import (DeleteBusinessView, UploadBusinessExcel, BusinessStat
 urlpatterns = [
     
     # to do : add, edit, delete
+    path('serveruptime/', ServerUpTime.as_view(), name='serveruptime'),
     path('upload/', UploadBusinessExcel.as_view(), name= 'upload_business_excel' ),
     path('editRecord/<int:id>/', EditBusinessRecord.as_view(), name= 'Edit_business_excel' ),
     path('addrecord/', AddBusinessView.as_view(), name= 'add_record_business_excel'),
