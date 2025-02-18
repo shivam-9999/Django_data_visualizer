@@ -1,20 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { BusinessData } from "./types/BusinessData"; // Ensure this matches exactly
 
-interface BusinessData {
-    name: string;
-    revenue: string | number;
-    profit: string | number;
-    employees: string | number;
-    country: string;
-}
 
 interface AddBusinessFormProps {
     fetchQueryData: (queryType: string) => void;
     setShowAddForm: (show: boolean) => void;
+    editingRecord: BusinessData | null;
 }
 
-const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, setShowAddForm }) => {
+
+const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, setShowAddForm, editingRecord }) => {
     const [newBusiness, setNewBusiness] = useState<BusinessData>({
         name: "",
         revenue: "",
@@ -22,6 +18,14 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
         employees: "",
         country: "",
     });
+
+    // Populate form fields when editingRecord changes
+    useEffect(() => {
+        if (editingRecord) {
+            setNewBusiness(editingRecord);
+        }
+    }, [editingRecord]);
+
 
     /** Function to Handle Adding New Business */
     const handleAddBusiness = async () => {
@@ -47,26 +51,41 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
         }
 
         try {
-            const response = await axios.post(
-                "http://127.0.0.1:8000/api/business/addrecord/",
-                newBusiness
-            );
+            if (editingRecord) {
+                // Update existing record
+                const response = await axios.put(
+                    `http://127.0.0.1:8000/api/business/editRecord/${editingRecord.id}/`,
+                    newBusiness
+                );
 
-            if (response.status === 201) {
-                alert("Business added successfully!");
-                fetchQueryData("all_businesses"); // Refresh data
-                setShowAddForm(false); // Hide form after adding
-                setNewBusiness({
-                    name: "",
-                    revenue: 0,
-                    profit: 0,
-                    employees: 0,
-                    country: "",
-                });
+                if (response.status === 200) {
+                    alert("Business updated successfully!");
+                }
+            } else {
+                // Add new record
+                const response = await axios.post(
+                    "http://127.0.0.1:8000/api/business/addrecord/",
+                    newBusiness
+                );
+
+                if (response.status === 201) {
+                    alert("Business added successfully!");
+                }
             }
+
+            fetchQueryData("all_businesses"); // Refresh data
+            setShowAddForm(false); // Hide form after submission
+            setNewBusiness({
+                id: 0,
+                name: "",
+                revenue: 0,
+                profit: 0,
+                employees: 0,
+                country: "",
+            });
         } catch (error) {
-            console.error("Error adding business:", error);
-            alert("Failed to add business.");
+            console.error("Error saving business:", error);
+            alert("Failed to save business.");
         }
     };
 
@@ -74,6 +93,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
         <div className="bg-white shadow p-4 rounded-md mb-4 mt-2">
             <h3 className="text-xl font-semibold mb-2">Add New Business</h3>
             <div className="grid grid-cols-2 gap-4">
+                {/* Company Name */}
                 <input
                     type="text"
                     placeholder="Business Name"
@@ -81,6 +101,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
                     onChange={(e) => setNewBusiness({ ...newBusiness, name: e.target.value })}
                     className="border p-2 rounded"
                 />
+                {/* revenue */}
                 <input
                     type="number"
                     placeholder="Revenue"
@@ -88,6 +109,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
                     onChange={(e) => setNewBusiness({ ...newBusiness, revenue: Number(e.target.value) })}
                     className="border p-2 rounded"
                 />
+                {/* profit */}
                 <input
                     type="number"
                     placeholder="Profit"
@@ -95,6 +117,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
                     onChange={(e) => setNewBusiness({ ...newBusiness, profit: Number(e.target.value) })}
                     className="border p-2 rounded"
                 />
+                {/* Employees */}
                 <input
                     type="number"
                     placeholder="Employees"
@@ -102,6 +125,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
                     onChange={(e) => setNewBusiness({ ...newBusiness, employees: Number(e.target.value) })}
                     className="border p-2 rounded"
                 />
+                {/* Country */}
                 <input
                     type="text"
                     placeholder="Country"

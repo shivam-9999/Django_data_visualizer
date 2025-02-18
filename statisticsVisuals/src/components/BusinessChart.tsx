@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 
+
+// BusinessData Interface
 interface BusinessData {
     id?: number;
     name?: string;
@@ -17,17 +19,21 @@ interface BusinessData {
     total_revenue_by_country?: number;
 }
 
+// ChartDataType Interface
 interface ChartDataType {
     labels: string[];
     datasets: { label: string; data: number[]; backgroundColor: string; }[];
 
 }
 
+// BusinessChartProps Interface
 interface BusinessChartProps {
     queryData: BusinessData[] | null;
     queryType: string | null;
 }
 
+console.log("hello")
+// BusinessChart Class 
 const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) => {
     const [chartData, setChartData] = useState<ChartDataType | null>(null);
 
@@ -36,9 +42,11 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
         responsive: true,
         maintainAspectRatio: false, // Allows custom width/height
     };
-
-
+    
+    // 
     useEffect(() => {
+
+        //  set Chart 
         if (!queryData || !Array.isArray(queryData) || queryData.length === 0) {
             setChartData(null);
             return;
@@ -52,11 +60,14 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
 
         // Determine chart data structure based on query type
         switch (queryType) {
+            // all_businesses
             case "all_businesses":
                 labels = top20Data.map((item) => item.name || "Unknown");
                 dataValues = top20Data.map((item) => Number(item.revenue) || 0);
                 labelName = "Revenue of All Businesses";
                 break;
+
+
 
             case "large_employers":
                 labels = top20Data.map((item) => item.name || "Unknown");
@@ -118,6 +129,8 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
                 labelName = "Top 5 Profitable Companies";
                 break;
 
+
+
             case "usa_companies":
                 labels = top20Data.map((item) => item.name || "Unknown");
                 dataValues = top20Data.map((item) => Number(item.revenue) || 0);
@@ -157,7 +170,7 @@ const BusinessChart: React.FC<BusinessChartProps> = ({ queryData, queryType }) =
     return (
         <>
             {chartData ? (
-                <div className="bg-white shadow p-4 min-h-screen min-w-fit rounded-md mt-4">
+                <div className="bg-white shadow p-4 min-h-screen max-w-screen rounded-md mt-4 ">
                     {/* {queryType === "large_employers" ? (
                         <Pie data={chartData} options={chartOptions} />
                     ) : ( */}
