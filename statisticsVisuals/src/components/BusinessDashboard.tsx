@@ -22,7 +22,7 @@ const BusinessDashboard: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get<BusinessData[] | BusinessData>(
-        `http://127.0.0.1:8000/api/business/queries/${queryType}/`
+        `http://0.0.0.0:8000/api/business/queries/${queryType}/`
       );
 
       setQueryData(response.data);
@@ -61,7 +61,7 @@ const BusinessDashboard: React.FC = () => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/business/delete_record_by_Id/?id=${id}`, {
+      const response = await fetch(`http://0.0.0.0:8000/api/business/delete_record_by_Id/?id=${id}`, {
         method: "DELETE",
       });
 
@@ -88,7 +88,7 @@ const BusinessDashboard: React.FC = () => {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/business/delete-all-businesses/", {
+      const response = await fetch("http://0.0.0.0:8000/api/business/delete-all-businesses/", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -54,7 +54,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
             if (editingRecord) {
                 // Update existing record
                 const response = await axios.put(
-                    `http://127.0.0.1:8000/api/business/editRecord/${editingRecord.id}/`,
+                    `http://0.0.0.0:8000/api/business/editRecord/${editingRecord.id}/`,
                     newBusiness
                 );
 
@@ -64,7 +64,7 @@ const AddBusinessRecords: React.FC<AddBusinessFormProps> = ({ fetchQueryData, se
             } else {
                 // Add new record
                 const response = await axios.post(
-                    "http://127.0.0.1:8000/api/business/addrecord/",
+                    "http://0.0.0.0:8000/api/business/addrecord/",
                     newBusiness
                 );
 
